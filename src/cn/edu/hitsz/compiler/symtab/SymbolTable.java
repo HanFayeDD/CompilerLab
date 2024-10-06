@@ -27,7 +27,7 @@ public class SymbolTable {
      * @throws RuntimeException 该符号在表中不存在
      */
     public SymbolTableEntry get(String text) {
-        throw new NotImplementedException();
+        return symbolMap.get(text);
     }
 
     /**
@@ -38,7 +38,6 @@ public class SymbolTable {
      * @throws RuntimeException 该符号已在表中存在
      */
     public SymbolTableEntry add(String text) {
-        //TODO
         var item = new SymbolTableEntry(text);
         symbolMap.put(text, item);
         return item;
@@ -86,6 +85,14 @@ public class SymbolTable {
         }
 
         FileUtils.writeLines(path, lines);
+    }
+
+    public void printSymbolTable() {
+        final var entriesInOrder = new ArrayList<>(getAllEntries().values());
+        entriesInOrder.sort(Comparator.comparing(SymbolTableEntry::getText));
+        for (final var entry : entriesInOrder) {
+            System.out.println("(%s, %s)".formatted(entry.getText(), entry.getType()));
+        }
     }
 }
 
