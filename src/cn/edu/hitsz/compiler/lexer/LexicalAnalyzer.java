@@ -61,14 +61,16 @@ public class LexicalAnalyzer {
      */
     public void run() {
         // TODO: 自动机实现的词法分析过程
-        for(String oneline: sourceTextlist){
+        for (String oneline : sourceTextlist) {
             LexicalOneLine(oneline);
         }
-        //在所有行分析完成后，添加文件结束符
+        // 在所有行分析完成后，添加文件结束符
         tokens.add(Token.eof());
     }
+
     /**
      * 对一行进行语法分析，默认源文件中每一行结尾都是分号
+     * 
      * @param p
      */
     private void LexicalOneLine(String p) {
@@ -144,6 +146,14 @@ public class LexicalAnalyzer {
                     break;
                 default:
                     break;
+            }
+        }
+        // 为避免int a中因为没有出现;导致最后漏掉token。还需要检查builder中是否还有字符
+        if (currentToken.length() != 0) {
+            if (currentState == LETTER) {
+                addLetterTotokens(currentToken);
+            } else if (currentState == DIGIT) {
+                addNumberTotokens(currentToken);
             }
         }
     }
@@ -229,6 +239,20 @@ public class LexicalAnalyzer {
         FileUtils.writeLines(
                 path,
                 StreamSupport.stream(getTokens().spliterator(), false).map(Token::toString).toList());
+    }
+
+    public static void main(String[] args) {
+        // 构建符号表以供各部分使用
+        TokenKind.loadTokenKinds();
+        final var symbolTable = new SymbolTable();
+
+        // 词法分析
+        final var lexer = new LexicalAnalyzer(symbolTable);
+        lexer.loadFile(FilePathConfig.SRC_CODE_PATH);
+        lexer.LexicalOneLine(" int a =1 ");
+        symbolTable.printSymbolTable();
+        System.out.println(lexer.getTokens());
+
     }
 
 }
