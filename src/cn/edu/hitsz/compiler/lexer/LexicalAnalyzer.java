@@ -50,7 +50,7 @@ public class LexicalAnalyzer {
      */
     public void loadFile(String path) {
         // TODO: 词法分析前的缓冲区实现
-        this.sourceTextlist = FileUtils.readLines(FilePathConfig.SRC_CODE_PATH);
+        this.sourceTextlist = FileUtils.readLines(path);
         System.out.println(this.sourceTextlist);
         System.out.println("*******read source file over*******");
     }
@@ -249,7 +249,7 @@ public class LexicalAnalyzer {
         // 词法分析
         final var lexer = new LexicalAnalyzer(symbolTable);
         lexer.loadFile(FilePathConfig.SRC_CODE_PATH);
-        lexer.LexicalOneLine(" int a =1 ");
+        lexer.LexicalOneLine(" int a = 13;");
         symbolTable.printSymbolTable();
         System.out.println(lexer.getTokens());
 
