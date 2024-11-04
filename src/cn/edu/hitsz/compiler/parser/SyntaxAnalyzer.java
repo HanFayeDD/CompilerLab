@@ -142,7 +142,6 @@ public class SyntaxAnalyzer {
             currentStatus = statusStack.peek();
             currentToken = tokens.get(currentTokenIndex);
             action = lrTable.getAction(currentStatus, currentToken);
-
             switch (action.getKind()) {
                 case ActionKind.Accept:
                     this.callWhenInAccept(currentStatus);

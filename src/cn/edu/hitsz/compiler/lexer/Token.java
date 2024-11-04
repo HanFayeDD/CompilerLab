@@ -84,6 +84,14 @@ public class Token {
         this.kind = kind;
         this.text = text;
     }
+
+    public String getKindString(){
+        return "%s".formatted(kind);
+    }
+
+    public String getTextString(){
+        return "%s".formatted(text);
+    }
     
 
     private final TokenKind kind;
