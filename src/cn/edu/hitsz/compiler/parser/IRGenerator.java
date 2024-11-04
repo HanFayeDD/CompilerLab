@@ -38,8 +38,9 @@ public class IRGenerator implements ActionObserver {
 
     @Override
     public void setSymbolTable(SymbolTable table) {
-        // TODO
-        throw new NotImplementedException();
+        // dothing
+        System.out.println("IRGenerator no need to store symbol table");
+        
     }
 
     public List<Instruction> getIR() {

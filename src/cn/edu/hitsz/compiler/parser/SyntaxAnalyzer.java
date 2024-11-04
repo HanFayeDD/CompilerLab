@@ -29,19 +29,17 @@ public class SyntaxAnalyzer {
     private final SymbolTable symbolTable;
     private final List<ActionObserver> observers = new ArrayList<>();
 
-    //词法分析器的tokens
-    private  List<Token> tokens;
+    // 词法分析器的tokens
+    private List<Token> tokens;
 
-    //lr分析表
-    private  LRTable lrTable;
+    // lr分析表
+    private LRTable lrTable;
 
-    //状态栈
-    private  Stack<Status> statusStack = new Stack<>();
+    // 状态栈
+    private Stack<Status> statusStack = new Stack<>();
 
-    //符号栈
-    private  Stack<Symbol> symbolStack = new Stack<>();
-    
-
+    // 符号栈
+    private Stack<Symbol> symbolStack = new Stack<>();
 
     public SyntaxAnalyzer(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
@@ -112,8 +110,8 @@ public class SyntaxAnalyzer {
         this.lrTable = table;
     }
 
-    private void pop2Stacks(int c){
-        for(int i = 0; i < c; i++){
+    private void pop2Stacks(int c) {
+        for (int i = 0; i < c; i++) {
             statusStack.pop();
             symbolStack.pop();
         }
@@ -122,14 +120,15 @@ public class SyntaxAnalyzer {
     public void run() {
         // TODO: 实现驱动程序
         // 你需要根据上面的输入来实现 LR 语法分析的驱动程序
-        // 请分别在遇到 Shift, Reduce, Accept 的时候调用上面的 callWhenInShift, callWhenInReduce, callWhenInAccept
+        // 请分别在遇到 Shift, Reduce, Accept 的时候调用上面的 callWhenInShift, callWhenInReduce,
+        // callWhenInAccept
         // 否则用于为实验二打分的产生式输出可能不会正常工作
         // throw new NotImplementedException();
 
-        //初始化状态栈与初始化符号栈
+        // 初始化状态栈与初始化符号栈
         statusStack.push(lrTable.getInit());
 
-        //产生式
+        // 产生式
         int rightlen = 0;
         NonTerminal notmal = null;
 
@@ -143,33 +142,33 @@ public class SyntaxAnalyzer {
             currentStatus = statusStack.peek();
             currentToken = tokens.get(currentTokenIndex);
             action = lrTable.getAction(currentStatus, currentToken);
-            
+
             switch (action.getKind()) {
                 case ActionKind.Accept:
-                this.callWhenInAccept(currentStatus);
+                    this.callWhenInAccept(currentStatus);
                     success = true;
                     break;
                 case ActionKind.Shift:
-                    callWhenInShift(currentStatus, currentToken);
+                    this.callWhenInShift(currentStatus, currentToken);
                     statusStack.push(action.getStatus());
                     symbolStack.push(new Symbol(currentToken));
-                    //终结符入栈后，指针后移
+                    // 终结符入栈后，指针后移
                     currentTokenIndex++;
                     break;
                 case ActionKind.Reduce:
                     Production production = action.getProduction();
                     this.callWhenInReduce(currentStatus, production);
                     rightlen = production.body().size();
-                    //两个栈弹出
+                    // 两个栈弹出
                     this.pop2Stacks(rightlen);
-                    //获取非终结符
+                    // 获取非终结符
                     notmal = production.head();
-                    //往符号栈压入非终结符
+                    // 往符号栈压入非终结符
                     symbolStack.push(new Symbol(notmal));
-                    //往状态栈中压入goto获取到的状态
+                    // 往状态栈中压入goto获取到的状态
                     currentStatus = statusStack.peek();
                     statusStack.push(currentStatus.getGoto(notmal));
-                    break;    
+                    break;
                 case ActionKind.Error:
                     throw new RuntimeException("error");
                 default:
