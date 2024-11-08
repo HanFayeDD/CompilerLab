@@ -5,3 +5,6 @@ https://compiler-6bi.pages.dev/
 
 ## exp2 Output
 ![alt text](assets/image-1.png)
+
+## exp3 Output
+![alt text](assets/image-2.png)

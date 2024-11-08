@@ -1,0 +1,1 @@
+python scripts/check-result.py 3 data/std data/out

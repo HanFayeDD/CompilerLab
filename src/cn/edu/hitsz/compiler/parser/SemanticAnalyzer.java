@@ -27,8 +27,7 @@ public class SemanticAnalyzer implements ActionObserver {
     @Override
     public void whenAccept(Status currentStatus) {
         // TODO: 该过程在遇到 Accept 时要采取的代码动作
-
-        // throw new NotImplementedException();
+        // do nothing
     }
 
     @Override

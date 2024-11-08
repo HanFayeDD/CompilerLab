@@ -20,6 +20,7 @@ public class IREmulator {
 
     public Optional<Integer> execute() {
         for (final var instruction : instructions) {
+            System.out.println("Executing IR Emulator..."+ instruction);
             switch (instruction.getKind()) {
                 case MOV -> {
                     final var from = eval(instruction.getFrom());
@@ -48,7 +49,9 @@ public class IREmulator {
 
                 default -> throw new RuntimeException("Unknown instruction kind: " + instruction.getKind());
             }
+            System.out.println("Environment: "+environment);
         }
+        
 
         return Optional.ofNullable(this.returnValue);
     }
@@ -70,6 +73,6 @@ public class IREmulator {
     }
 
     private final List<Instruction> instructions;
-    private final Map<IRVariable, Integer> environment;
+    private final Map<IRVariable, Integer> environment; //中间变量的值
     private Integer returnValue;
 }
