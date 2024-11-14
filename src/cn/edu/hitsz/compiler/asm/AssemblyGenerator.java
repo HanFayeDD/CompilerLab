@@ -1,9 +1,16 @@
 package cn.edu.hitsz.compiler.asm;
 
 import cn.edu.hitsz.compiler.NotImplementedException;
+import cn.edu.hitsz.compiler.ir.IRImmediate;
+import cn.edu.hitsz.compiler.ir.IRValue;
+import cn.edu.hitsz.compiler.ir.IRVariable;
 import cn.edu.hitsz.compiler.ir.Instruction;
+import cn.edu.hitsz.compiler.ir.InstructionKind;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.print.DocFlavor.STRING;
 
 
 /**
@@ -21,6 +28,14 @@ import java.util.List;
  * @see AssemblyGenerator#run() 代码生成与寄存器分配
  */
 public class AssemblyGenerator {
+    
+    List<Instruction> instructions = new ArrayList<>();
+
+    private static int cnt = 0;
+
+    private String getcnt(){
+        return "$$"+cnt++;
+    }
 
     /**
      * 加载前端提供的中间代码
@@ -31,8 +46,75 @@ public class AssemblyGenerator {
      * @param originInstructions 前端提供的中间代码
      */
     public void loadIR(List<Instruction> originInstructions) {
-        // TODO: 读入前端提供的中间代码并生成所需要的信息
-        throw new NotImplementedException();
+        // 读入前端提供的中间代码并生成所需要的信息
+        // instructions = originInstructions;
+        System.out.println("before preprocess:"+originInstructions);
+        for(var nowp:originInstructions){
+            //处理二元的且都是立即数
+            if(nowp.getKind().isBinary()&& isImm(nowp.getOperands())==11){
+                var param1 = ((IRImmediate) nowp.getOperands().get(0)).getValue();
+                var param2 = ((IRImmediate) nowp.getOperands().get(1)).getValue();
+                switch (nowp.getKind()) {
+                    case InstructionKind.ADD:
+                        instructions.add(Instruction.createMov(IRVariable.named(getcnt()), IRImmediate.of(param1+param2)));
+                        break;
+                    case InstructionKind.SUB:
+                        instructions.add(Instruction.createMov(IRVariable.named(getcnt()), IRImmediate.of(param1-param2)));
+                        break;
+                    case InstructionKind.MUL:
+                        instructions.add(Instruction.createMov(IRVariable.named(getcnt()), IRImmediate.of(param1*param2)));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            //add 立即数+非立即数
+            else if(nowp.getKind() == InstructionKind.ADD && isImm(nowp.getOperands())==10){
+                var param1 = ((IRImmediate) nowp.getOperands().get(0));
+                var param2 = ((IRVariable) nowp.getOperands().get(1));
+                instructions.add(Instruction.createAdd(nowp.getResult(), param2, param1));
+            }
+            //SUB 非立即数-立即数 可以直接等价为subi
+            //SUB 立即数-非立即数
+            else if(nowp.getKind() == InstructionKind.SUB && isImm(nowp.getOperands())==10){
+                
+            }
+        }
+        System.out.println("after preprocess:"+instructions);
+    }
+
+    private boolean isleftImm(List<IRValue> operands){
+        if(!(operands.get(0) instanceof IRImmediate)){
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isallImm(List<IRValue> operands){
+        for(var nowp:operands){
+            if(!(nowp instanceof IRImmediate)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private int isImm(List<IRValue> operands){
+        var p1 = operands.get(0);
+        var p2 = operands.get(1);
+        if(p1 instanceof IRImmediate && p2 instanceof IRImmediate){
+            return 11;
+        }
+        else if((p1 instanceof IRImmediate) && !(p2 instanceof IRImmediate)){
+            return 10;
+        }
+        else if(!(p1 instanceof IRImmediate) && (p2 instanceof IRImmediate)){
+            return 1;
+        }
+        else if(!(p1 instanceof IRImmediate) && !(p2 instanceof IRImmediate)){
+            return 0;
+        }
+        throw new RuntimeException("error");
     }
 
 
