@@ -34,7 +34,7 @@ public class AssemblyGenerator {
     private static int cnt = 0;
 
     private String getcnt(){
-        return "$$"+cnt++;
+        return "##"+cnt++;
     }
 
     /**
@@ -54,15 +54,16 @@ public class AssemblyGenerator {
             if(nowp.getKind().isBinary()&& isImm(nowp.getOperands())==11){
                 var param1 = ((IRImmediate) nowp.getOperands().get(0)).getValue();
                 var param2 = ((IRImmediate) nowp.getOperands().get(1)).getValue();
+                var result = nowp.getResult();
                 switch (nowp.getKind()) {
                     case InstructionKind.ADD:
-                        instructions.add(Instruction.createMov(IRVariable.named(getcnt()), IRImmediate.of(param1+param2)));
+                        instructions.add(Instruction.createMov(result, IRImmediate.of(param1+param2)));
                         break;
                     case InstructionKind.SUB:
-                        instructions.add(Instruction.createMov(IRVariable.named(getcnt()), IRImmediate.of(param1-param2)));
+                        instructions.add(Instruction.createMov(result, IRImmediate.of(param1-param2)));
                         break;
                     case InstructionKind.MUL:
-                        instructions.add(Instruction.createMov(IRVariable.named(getcnt()), IRImmediate.of(param1*param2)));
+                        instructions.add(Instruction.createMov(result, IRImmediate.of(param1*param2)));
                         break;
                     default:
                         break;
@@ -77,29 +78,43 @@ public class AssemblyGenerator {
             //SUB 非立即数-立即数 可以直接等价为subi
             //SUB 立即数-非立即数
             else if(nowp.getKind() == InstructionKind.SUB && isImm(nowp.getOperands())==10){
-                
+                var param1 = ((IRImmediate) nowp.getOperands().get(0));
+                var param2 = ((IRVariable) nowp.getOperands().get(1));
+                var newvar = IRVariable.named(getcnt());
+                instructions.add(Instruction.createMov(newvar, param1));
+                instructions.add(Instruction.createSub(nowp.getResult(), newvar, param2));
+            }
+            else if(nowp.getKind()==InstructionKind.MUL && 
+                   (isImm(nowp.getOperands())==10 || isImm(nowp.getOperands())==1)){
+                    if(isImm(nowp.getOperands())==10){
+                        var param1 = ((IRImmediate) nowp.getOperands().get(0));
+                        var param2 = ((IRVariable) nowp.getOperands().get(1));
+                        var newvar = IRVariable.named(getcnt());
+                        instructions.add(Instruction.createMov(newvar, param1)); 
+                        instructions.add(Instruction.createMul(nowp.getResult(), newvar, param2));
+                    }else{
+                        var param1 = ((IRImmediate) nowp.getOperands().get(1));
+                        var param2 = ((IRVariable) nowp.getOperands().get(0));
+                        var newvar = IRVariable.named(getcnt());
+                        instructions.add(Instruction.createMov(newvar, param1)); 
+                        instructions.add(Instruction.createMul(nowp.getResult(), param2, newvar));
+                    }
+            }
+            else if(nowp.getKind()==InstructionKind.RET){
+                instructions.add(nowp);
+                break;
+            }
+            else{
+                instructions.add(nowp);
             }
         }
         System.out.println("after preprocess:"+instructions);
     }
 
-    private boolean isleftImm(List<IRValue> operands){
-        if(!(operands.get(0) instanceof IRImmediate)){
-            return false;
-        }
-        return true;
-    }
-
-    private boolean isallImm(List<IRValue> operands){
-        for(var nowp:operands){
-            if(!(nowp instanceof IRImmediate)){
-                return false;
-            }
-        }
-        return true;
-    }
-
     private int isImm(List<IRValue> operands){
+        if(operands.size()!=2){
+            throw new RuntimeException("error");
+        }
         var p1 = operands.get(0);
         var p2 = operands.get(1);
         if(p1 instanceof IRImmediate && p2 instanceof IRImmediate){

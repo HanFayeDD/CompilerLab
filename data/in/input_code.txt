@@ -1,5 +1,9 @@
+int result;
 int a;
 int b;
-b = 3;
-a = 1 + b;
-return a;
+int c;
+a = 8;
+b = 5;
+c = 3 - a;
+result = a * b - ( 3 + b ) * ( c - a );
+return result;
