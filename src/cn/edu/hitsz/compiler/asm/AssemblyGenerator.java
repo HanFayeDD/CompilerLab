@@ -9,7 +9,9 @@ import cn.edu.hitsz.compiler.ir.InstructionKind;
 import cn.edu.hitsz.compiler.utils.FileUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.print.DocFlavor.STRING;
 
@@ -39,6 +41,10 @@ public class AssemblyGenerator {
     private String getcnt() {
         return "##" + cnt++;
     }
+
+    private int nowIRindex = -1;
+    private int resindex = -1;
+    private List<Reg> reslist = new ArrayList<>();
 
     /**
      * 加载前端提供的中间代码
@@ -149,73 +155,83 @@ public class AssemblyGenerator {
     public void run() {
         // TODO: 执行寄存器分配与代码生成
         for (var nowp : instructions) {
+            nowIRindex++;
+            resindex = 0;
             System.out.println(nowp);
             switch (nowp.getKind()) {
                 case InstructionKind.ADD:
                     if (isImm(nowp.getOperands()) == 01) {
                         // System.out.println(AsmKind.addi);
-                        asm.add(Asmsentence.createaddi(AsmKind.addi, (AsmvalReg)ir2asm(nowp.getResult()),
-                                 ir2asm(nowp.getOperands().get(0)), 
-                                 ir2asm(nowp.getOperands().get(1))));
+                        asm.add(Asmsentence.createaddi(AsmKind.addi,
+                                ir2asm(nowp.getOperands().get(0)),
+                                ir2asm(nowp.getOperands().get(1)),
+                                (AsmvalReg) ir2asm(nowp.getResult())));
                     } else {
                         // System.out.println(AsmKind.add);
-                        asm.add(Asmsentence.createadd(AsmKind.add, (AsmvalReg)ir2asm(nowp.getResult()),
-                        ir2asm(nowp.getOperands().get(0)), 
-                        ir2asm(nowp.getOperands().get(1))));
+                        asm.add(Asmsentence.createadd(AsmKind.add,
+                                ir2asm(nowp.getOperands().get(0)),
+                                ir2asm(nowp.getOperands().get(1)),
+                                (AsmvalReg) ir2asm(nowp.getResult())));
                     }
                     break;
                 case InstructionKind.SUB:
                     if (isImm(nowp.getOperands()) == 01) {
                         // System.out.println(AsmKind.subi);
-                        asm.add(Asmsentence.createsubi(AsmKind.subi, (AsmvalReg)ir2asm(nowp.getResult()),
-                        ir2asm(nowp.getOperands().get(0)), 
-                        ir2asm(nowp.getOperands().get(1))));
+                        asm.add(Asmsentence.createsubi(AsmKind.subi,
+                                ir2asm(nowp.getOperands().get(0)),
+                                ir2asm(nowp.getOperands().get(1)),
+                                (AsmvalReg) ir2asm(nowp.getResult())));
                     } else {
                         // System.out.println(AsmKind.sub);
-                        asm.add(Asmsentence.createsub(AsmKind.sub, (AsmvalReg)ir2asm(nowp.getResult()),
-                        ir2asm(nowp.getOperands().get(0)), 
-                        ir2asm(nowp.getOperands().get(1))));
+                        asm.add(Asmsentence.createsub(AsmKind.sub,
+                                ir2asm(nowp.getOperands().get(0)),
+                                ir2asm(nowp.getOperands().get(1)),
+                                (AsmvalReg) ir2asm(nowp.getResult())));
                     }
                     break;
                 case InstructionKind.MUL:
                     // System.out.println(AsmKind.mul);
-                    asm.add(Asmsentence.createmul(AsmKind.mul, (AsmvalReg)ir2asm(nowp.getResult()),
-                    ir2asm(nowp.getOperands().get(0)), 
-                    ir2asm(nowp.getOperands().get(1))));
+                    asm.add(Asmsentence.createmul(AsmKind.mul,
+                            ir2asm(nowp.getOperands().get(0)),
+                            ir2asm(nowp.getOperands().get(1)),
+                            (AsmvalReg) ir2asm(nowp.getResult())));
                     break;
                 case InstructionKind.MOV:
                     if (isImm(nowp.getOperands()) == 1) {
                         // System.out.println(AsmKind.li);
-                        asm.add(Asmsentence.createli(AsmKind.li, (AsmvalReg)ir2asm(nowp.getResult()),ir2asm(nowp.getOperands().get(0))));
+                        asm.add(Asmsentence.createli(AsmKind.li,
+                                ir2asm(nowp.getOperands().get(0)),
+                                (AsmvalReg) ir2asm(nowp.getResult())));
                     } else if (isImm(nowp.getOperands()) == 0) {
                         // System.out.println(AsmKind.mv);
-                        asm.add(Asmsentence.createmv(AsmKind.mv, (AsmvalReg)ir2asm(nowp.getResult()),ir2asm(nowp.getOperands().get(0))));
+                        asm.add(Asmsentence.createmv(AsmKind.mv,
+                                ir2asm(nowp.getOperands().get(0)),
+                                (AsmvalReg) ir2asm(nowp.getResult())));
                     } else {
                         throw new RuntimeException("error");
                     }
                     break;
                 case InstructionKind.RET:
                     // System.out.println(AsmKind.mv);
-                    asm.add(Asmsentence.createmv(AsmKind.mv, new AsmvalReg(Reg.a0), ir2asm(nowp.getOperands().get(0))));
-                    System.out.println("change to asm"+asm.get(asm.size()-1));
+                    asm.add(Asmsentence.createmv(AsmKind.mv, ir2asm(nowp.getOperands().get(0)),  new AsmvalReg(Reg.a0)));
+                    System.out.println("change to asm" + asm.get(asm.size() - 1));
 
                     return;
                 default:
                     break;
             }
-            System.out.println("change to asm"+asm.get(asm.size()-1));
+            System.out.println("change to asm" + asm.get(asm.size() - 1));
         }
     }
 
-    public List<Asmsentence> getAsm(){
+    public List<Asmsentence> getAsm() {
         return asm;
     }
 
-    public Asmvalue ir2asm(IRValue irval){
-        if(irval instanceof IRVariable){
+    public Asmvalue ir2asm(IRValue irval) {
+        if (irval instanceof IRVariable) {
             return new AsmvalReg(getReg(irval));
-        }
-        else if(irval instanceof IRImmediate){
+        } else if (irval instanceof IRImmediate) {
             return new AsmvalImm(((IRImmediate) irval).getValue());
         }
         throw new RuntimeException("error in ir2asm");
@@ -230,30 +246,60 @@ public class AssemblyGenerator {
         FileUtils.writeLines(path, getAsm().stream().map(Asmsentence::toString).toList());
     }
 
-
-    public Reg getReg(IRValue IRval){
-        if(!(IRval instanceof IRVariable)){
+    public Reg getReg(IRValue IRval) {
+        if (!(IRval instanceof IRVariable)) {
             throw new RuntimeException("寄存器分配错误");
         }
-        for (var reg :Reg.values()){
-            if(!(bMap.containsK(reg))){
-                bMap.put(reg, IRval.toString());
-                return reg;     
+        IRval = (IRVariable) IRval;
+        // 能够在Map中找到
+        if (bMap.containsV(IRval.toString())) {
+            return bMap.getK(IRval.toString());
+        }
+        // 不能
+        for (var reg : Reg.values()) {
+            if (reg == Reg.a0) {
+                continue;
             }
+            if (!(bMap.containsK(reg))) {
+                bMap.put(reg, IRval.toString());
+                return reg;
+            }
+        }
+        // 寻找不用变量
+        if (resindex == 0) {
+            // 生成可用re数组g
+            reslist.clear();
+            var s_set = getafterindexString();
+            for (var reg : bMap.getusedKeys()) {
+                var s = bMap.getV(reg);
+                if (!s_set.contains(s)) {
+                    reslist.add(reg);
+                }
+                if (reslist.size() >= 3) {
+                    break;
+                }
+            }
+        }
+
+        if (resindex < reslist.size()) {
+            bMap.removebyK(reslist.get(resindex));
+            bMap.put(reslist.get(resindex), IRval.toString());
+            return reslist.get(resindex++);
         }
         throw new RuntimeException("寄存器已满");
     }
 
-
-    public static void main(String[] args) {
-        var generator = new AssemblyGenerator();
-        var temp = Asmsentence.createmv(AsmKind.mv, new AsmvalReg(Reg.a0), new AsmvalReg(Reg.t0));
-        System.out.println(temp);
-        var tq =   Asmsentence.createaddi(AsmKind.addi, new AsmvalReg(Reg.t0), new AsmvalReg(Reg.t2), new AsmvalImm(0));
-        System.out.println(tq);
-        generator.asm.add(Asmsentence.getText());
-        generator.asm.add(temp);
-        generator.asm.add(tq);
-        generator.dump("output.asm");
+    private Set<String> getafterindexString() {
+        Set<String> s_set = new HashSet<>();
+        for (int i = nowIRindex+1; i < instructions.size(); i++) {
+            var tp = instructions.get(i);
+            for (var op : tp.getOperands()) {
+                if (op != null) {
+                    s_set.add(op.toString());
+                }
+            }
+        }
+        return s_set;
     }
+
 }

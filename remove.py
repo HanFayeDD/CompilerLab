@@ -7,5 +7,5 @@ def delete():
         print(f"Deleted {abs_path}")
 
 fnls = ['token.txt', 'parser_list.txt', 'new_symbol_table.txt', 'old_symbol_table.txt',
-        'ir_emulate_result.txt', 'intermediate_code.txt']   
+        'ir_emulate_result.txt', 'intermediate_code.txt', 'assembly_language.asm']   
 delete()

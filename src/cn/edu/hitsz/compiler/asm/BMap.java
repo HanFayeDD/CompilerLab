@@ -1,6 +1,7 @@
 package cn.edu.hitsz.compiler.asm;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BMap<K, V> {
@@ -19,6 +20,11 @@ public class BMap<K, V> {
     public void put(K key, V value) {
         kvmap.put(key, value);
         vkmap.put(value, key);
+    }
+
+    public void show(){
+        System.out.println(kvmap);
+        System.out.println(vkmap);
     }
 
     //检验
@@ -48,6 +54,17 @@ public class BMap<K, V> {
         K key = vkmap.get(value);
         kvmap.remove(key);
         vkmap.remove(value);
+    }
+
+    public List<K> getusedKeys() {
+        return kvmap.keySet().stream().toList();
+    }
+
+    public static void main(String[] args) {
+        BMap<Reg, String> bmap = new BMap<>();
+        bmap.put(Reg.a0, "a");
+        bmap.put(Reg.t0, "b");
+        System.out.println(bmap.getusedKeys().get(0).getClass());
     }
 }
 

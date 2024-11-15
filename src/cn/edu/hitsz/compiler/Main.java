@@ -8,7 +8,6 @@ import cn.edu.hitsz.compiler.parser.ProductionCollector;
 import cn.edu.hitsz.compiler.parser.SemanticAnalyzer;
 import cn.edu.hitsz.compiler.parser.SyntaxAnalyzer;
 import cn.edu.hitsz.compiler.parser.table.GrammarInfo;
-import cn.edu.hitsz.compiler.parser.table.TableGenerator;
 import cn.edu.hitsz.compiler.parser.table.TableLoader;
 import cn.edu.hitsz.compiler.symtab.SymbolTable;
 import cn.edu.hitsz.compiler.utils.FilePathConfig;
