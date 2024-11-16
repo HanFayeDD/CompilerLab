@@ -1,1 +1,1 @@
-java -jar RARS.jar mc CompactDataAtZero a0 nc dec ae255 data\std\assembly_language.asm
+java -jar RARS.jar mc CompactDataAtZero a0 nc dec ae255 data\out\assembly_language.asm
