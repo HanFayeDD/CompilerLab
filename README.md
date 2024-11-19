@@ -17,7 +17,7 @@ https://compiler-6bi.pages.dev/
 ## exp4 Output
 ##### ASM文件
 ![alt text](assets/image-4.png)
-##### RASS执行结果
+##### RARS执行结果
 ![alt text](assets/image-5.png)
 ##### RARS命令行执行结果
 ![alt text](assets/image-6.png)
@@ -59,3 +59,6 @@ $ SUB \$0, \$1, \$2$。1和2已经有寄存器映射。假设已满，寻找0的
   - 从nowp+1开始寻找
   - 先将参数寄存器映射保存下来，即先找到参数寄存器映射，再从nowp+1开始寻找目标寄存器的映射。具体查看Asmsentence的静态构造函数。result都是最后一个获取的。
   - 这样既可以保证连加的实现。也可以避免目标寄存器对参数寄存器映射造成影响。
+ 
+## 实验报告
+![alt text](实验报告upload.pdf)
